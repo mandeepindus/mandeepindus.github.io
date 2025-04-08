@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,11 +16,53 @@
         }
 
         header {
-            background-color: #dc434d; /* Blue header */
-            color: rgb(225, 225, 222);
-            padding: 2px;
-            text-align: center;
+    background-color: #dc434d;
+    color: rgb(225, 225, 222);
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.logo {
+    height: 10px; /* Adjust size as needed */
+    position: absolute;
+    left: 15px; /* Positions the logo to the left */
+}
+.cart {
+            position: absolute;
+            right: 15px;
+            cursor: pointer;
         }
+
+        .cart-icon {
+            font-size: 24px;
+        }
+
+        .cart-container {
+            display: none;
+            position: absolute;
+            right: 15px;
+            top: 50px;
+            background: rgb(228, 111, 111);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            min-width: 250px;
+        }
+
+        .cart-items {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        h1 {
+           flex-grow: 1;
+          text-align: center;
+             margin: 0;
+              }
+
 
         nav {
             background-color: #000000; /* Darker navigation bar */
@@ -140,13 +183,37 @@
             height: auto;
             margin-bottom: 10px;
         }
+        .add-to-cart {
+            background-color: #e93251;
+            color: rgb(255, 255, 255);
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .add-to-cart:hover {
+            background-color: #ee3a49;
+        }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>Mandeep Industries</h1>
-    </header>
+        <header>
+           
+                
+               <h1 style="margin: 10px; text-align: center;">Mandeep Industries</h1>
+               <div class="cart" onclick="toggleCart()">
+                🛒 <span class="cart-count">0</span>
+            </div>
+            <div class="cart-container" id="cart-container">
+                <h3>Shopping Cart</h3>
+                <div class="cart-items"></div>
+                <p>Total: ₹<span class="cart-total">0</span></p>
+                <button onclick="checkout()">Checkout</button>
+            </div>
+               </header>
+      
     <center><h2>Manufacturers of Hardware Nuts</h2></center>
     <nav>
         <ul>
@@ -170,30 +237,35 @@
         <section id="products">
             <h2>Products</h2>
             <div class="product-list">
-                <div class="product-item">
+                <div class="product-item" data-name="Hardware Nuts" data-price="5000">
                     <img src="https://m.media-amazon.com/images/I/71gD2939pLL.jpg" alt="Hardware Nuts">
                     <h3>Hardware Nuts</h3>
                     <p>Price per Bag 5000rs.</p>
+                    <button class="add-to-cart">Add to Cart</button>
                 </div>
-                <div class="product-item">
+                <div class="product-item" data-name="Nylock Nuts" data-price="6000">
                     <img src="https://5.imimg.com/data5/SELLER/Default/2022/6/CR/JQ/IH/901184/nylock-nut.jpg" alt="Nylock Nuts">
                     <h3>Nylock Nuts</h3>
                     <p>Price per bag 6000 rs</p>
+                    <button class="add-to-cart">Add to Cart</button>
                 </div>
-                <div class="product-item">
+                <div class="product-item" data-name="Coupling Nuts" data-price="7000">
                     <img src="https://www.jigneshsteel.com/images/stainless-steel-coupling-nuts.jpg" alt="Coupling Nuts">
                     <h3>Coupling Nuts</h3>
                     <p>Price per bag 7000 rs</p>
+                    <button class="add-to-cart">Add to Cart</button>
                 </div>
-                <div class="product-item">
+                <div class="product-item" data-name="Bicycle Nuts" data-price="8000">
                     <img src="https://5.imimg.com/data5/SELLER/Default/2023/4/303010317/HL/UP/JR/96118814/mild-steel-axle-nut-washer-set-500x500.jpg" alt="Bicycle Nuts">
                     <h3>Bicycle Nuts</h3>
                     <p>Price per bag 8000 rs</p>
+                    <button class="add-to-cart">Add to Cart</button>
                 </div>
-                <div class="product-item">
+                <div class="product-item" data-name="tractor Nuts" data-price="6500">
                     <img src="https://5.imimg.com/data5/CJ/RQ/KD/SELLER-10257194/castle-nut.jpg" alt="Tractor Part Nuts">
                     <h3>Tractor Part Nuts</h3>
                     <p>Price per bag 6500 rs</p>
+                    <button class="add-to-cart">Add to Cart</button>
                 </div>
             </div>
         </section>
@@ -237,7 +309,62 @@
             </section>
     
         </main>
-    
+        <script>
+            let cart = [];
+        
+            function toggleCart() {
+                document.getElementById('cart-container').style.display = 
+                    document.getElementById('cart-container').style.display === 'block' ? 'none' : 'block';
+            }
+        
+            function updateCart() {
+                let cartItemsContainer = document.querySelector(".cart-items");
+                let cartCount = document.querySelector(".cart-count");
+                let cartTotal = document.querySelector(".cart-total");
+        
+                cartItemsContainer.innerHTML = "";
+                let total = 0;
+        
+                cart.forEach((item, index) => {
+                    total += item.price * item.quantity;
+                    cartItemsContainer.innerHTML += `<p>${item.name} (x${item.quantity}) - ₹${item.price * item.quantity} 
+                    <button onclick="removeFromCart(${index})">❌</button></p>`;
+                });
+        
+                cartCount.innerText = cart.length;
+                cartTotal.innerText = total;
+            }
+        
+            function addToCart(name, price) {
+                let existingItem = cart.find(item => item.name === name);
+                if (existingItem) {
+                    existingItem.quantity++;
+                } else {
+                    cart.push({ name, price, quantity: 1 });
+                }
+                updateCart();
+            }
+        
+            function removeFromCart(index) {
+                cart.splice(index, 1);
+                updateCart();
+            }
+        
+            function checkout() {
+                alert("Thank you for your purchase! Your total is ₹" + document.querySelector(".cart-total").innerText);
+                cart = [];
+                updateCart();
+            }
+        
+            document.querySelectorAll(".add-to-cart").forEach(button => {
+                button.addEventListener("click", function () {
+                    let product = this.parentElement;
+                    let name = product.getAttribute("data-name");
+                    let price = parseInt(product.getAttribute("data-price"));
+                    addToCart(name, price);
+                });
+            });
+        </script>
         <footer>
             <p>© 2024 Mandeep Industries. All rights reserved.</p>
         </footer>
